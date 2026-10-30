@@ -249,14 +249,37 @@ def main():
     # MESSAGE HANDLERS
     # ==========================
     # NOTE: Only admin_request_reply remains here.
-    # direct_search has been REMOVED — anime search is command-only now.
-    # Normal text messages must NEVER trigger anime search.
     app.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
             admin_request_reply,
         ),
         group=0,
+    )
+
+
+    # ==========================================
+    # MAHIRU DIRECT ANIME SEARCH
+    # ==========================================
+
+    app.add_handler(
+        MessageHandler(
+            filters.ChatType.PRIVATE
+            & filters.TEXT
+            & ~filters.COMMAND,
+            direct_search,
+        ),
+        group=1,
+    )
+
+    app.add_handler(
+        MessageHandler(
+            filters.ChatType.GROUPS
+            & filters.TEXT
+            & ~filters.COMMAND,
+            direct_search,
+        ),
+        group=1,
     )
 
 
@@ -267,6 +290,13 @@ def main():
         CallbackQueryHandler(
             groups_callback,
             pattern="^groups_"
+        )
+    )
+
+    app.add_handler(
+        CallbackQueryHandler(
+            direct_anime_callback,
+            pattern=r"^directanime:"
         )
     )
 

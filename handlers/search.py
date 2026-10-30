@@ -232,6 +232,10 @@ async def direct_search(
 
     message = update.effective_message
 
+   # Ignore messages while admin is adding anime.
+    if context.user_data.get("mahiru_add_busy"):
+        return
+
     if not message or not message.text:
         return
 

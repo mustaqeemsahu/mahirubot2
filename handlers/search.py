@@ -1,9 +1,9 @@
-# ==============================
-# SEARCH HANDLER
-# ==============================
+# ==========================================
+# MAHIRU DIRECT ANIME SEARCH
+# ==========================================
 
-import re
-import asyncio
+import logging
+from html import escape
 
 from telegram import (
     Update,
@@ -12,195 +12,358 @@ from telegram import (
 )
 
 from telegram.ext import ContextTypes
+from telegram.error import TelegramError
 
-from database.mongo import get_all_anime
-from utils.cooldown import check_cooldown
-from utils.filters import force_sub
 from config import FORCE_CHANNEL
-from utils.anime_search import find_anime_matches
-
-
-# ==============================
-# SMALL CAPS MAPPING
-# ==============================
-
-SMALL_CAPS = str.maketrans(
-    "abcdefghijklmnopqrstuvwxyz",
-    "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ",
+from database.mongo import get_all_anime
+from utils.direct_filter import (
+    search_anime,
+    available_languages,
 )
 
-
-def sc(text: str) -> str:
-    return text.translate(SMALL_CAPS)
+logger = logging.getLogger(__name__)
 
 
-# ==============================
-# NORMALIZE
-# ==============================
+# ==========================================
+# COLOURED BUTTONS
+# ==========================================
 
-def normalize(text: str):
+def colored_button(text, url=None, callback_data=None, style=None):
+    """
+    Support newer PTB versions with button styles.
+    Older PTB versions receive ordinary buttons.
+    """
 
-    text = text.lower()
+    kwargs = {"text": text}
 
-    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    if url is not None:
+        kwargs["url"] = url
 
-    text = re.sub(r"\s+", " ", text)
+    if callback_data is not None:
+        kwargs["callback_data"] = callback_data
 
-    return text.strip()
+    if style:
+        try:
+            return InlineKeyboardButton(
+                **kwargs,
+                style=style
+            )
+        except TypeError:
+            pass
 
-
-# ==============================
-# AUTO DELETE
-# ==============================
-
-async def auto_delete(message, sec=120):
-
-    await asyncio.sleep(sec)
-
-    try:
-        await message.delete()
-    except:
-        pass
+    return InlineKeyboardButton(**kwargs)
 
 
-# ==============================
-# BUTTON BUILDER
-# ==============================
+# ==========================================
+# CHANNEL URL
+# ==========================================
+
+def main_channel_url():
+    channel = str(FORCE_CHANNEL or "").strip()
+
+    if channel.startswith("https://t.me/"):
+        return channel
+
+    if channel.startswith("@"):
+        channel = channel[1:]
+
+    if channel and not channel.lstrip("-").isdigit():
+        return f"https://t.me/{channel}"
+
+    return None
+
+
+# ==========================================
+# RESULT BUTTONS
+# ==========================================
 
 def build_buttons(anime):
 
     keyboard = []
 
-    hindi = anime.get("hindi_link")
-    english = anime.get("english_link")
+    languages = available_languages(anime)
 
-    old_link = anime.get("link")
-
-    if hindi and hindi != "-":
+    # HINDI - GREEN
+    if "hindi" in languages:
         keyboard.append([
-            InlineKeyboardButton(
-                "𝖶𝖺𝗍𝖼𝗁 𝖨𝗇 𝖧𝗂𝗇𝖽𝗂 𝖣𝗎𝖻",
-                url=hindi,
+            colored_button(
+                "🇮🇳 Watch Hindi",
+                url=languages["hindi"],
                 style="success"
             )
         ])
 
-    if english and english != "-":
+    # ENGLISH - BLUE
+    if "english" in languages:
         keyboard.append([
-            InlineKeyboardButton(
-                "𝖶𝖺𝗍𝖼𝗁 𝖨𝗇 𝖩𝖺𝗉/𝖤𝗇𝗀𝗅𝗂𝗌𝗁",
-                url=english,
-                style="success"
-            )
-        ])
-
-    if (
-        (not hindi or hindi == "-")
-        and (not english or english == "-")
-        and old_link
-    ):
-        keyboard.append([
-            InlineKeyboardButton(
-                "𝗪𝗮𝘁𝗰𝗵 & 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱",
-                url=old_link,
-                style="success"
-            )
-        ])
-
-    keyboard.append([
-        InlineKeyboardButton(
-            "𝖩𝗈𝗂𝗇 𝖬𝖺𝗂𝗇 𝖢𝗁𝖺𝗇𝗇𝖾𝗅",
-            url=f"https://t.me/{FORCE_CHANNEL.replace('@', '')}",
-            style="success"
-        )
-    ])
-
-    return InlineKeyboardMarkup(keyboard)
-
-
-# ==============================
-# PARTIAL SEARCH (/search)
-# ==============================
-
-async def improved_anime(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if not await force_sub(update, context):
-        return
-
-    user_id = update.effective_user.id
-
-    if not check_cooldown(user_id, seconds=3):
-        return await update.message.reply_text(
-            "⏳ ᴡᴀɪᴛ 3 sᴇᴄ"
-        )
-
-    query = " ".join(context.args)
-
-    if not query:
-        return await update.message.reply_text(
-            "ᴇxᴀᴍᴘʟᴇ:\n/search Naruto"
-        )
-
-    animes = await get_all_anime()
-
-    result = find_anime_matches(query, animes, limit=5)
-    matches = result.get("matches", [])
-
-    if not matches:
-        return await update.message.reply_text(
-            "❌ ɴᴏ ᴀɴɪᴍᴇ ғᴏᴜɴᴅ."
-        )
-
-    text = "🎌 sᴇᴀʀᴄʜ ʀᴇsᴜʟᴛs\n\n"
-
-    for anime in matches[:5]:
-        text += f"• {anime['name']}\n"
-
-    sent = await update.message.reply_text(text)
-    asyncio.create_task(auto_delete(sent, 120))
-
-
-# ==============================
-# BUTTON SEARCH (/btn)
-# ==============================
-
-async def button_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if not await force_sub(update, context):
-        return
-
-    query = " ".join(context.args)
-
-    if not query:
-        return await update.message.reply_text(
-            "ᴇxᴀᴍᴘʟᴇ:\n/btn Naruto"
-        )
-
-    animes = await get_all_anime()
-
-    result = find_anime_matches(query, animes, limit=5)
-    matches = result.get("matches", [])
-
-    if not matches:
-        return await update.message.reply_text(
-            "❌ ɴᴏ ᴀɴɪᴍᴇ ғᴏᴜɴᴅ."
-        )
-
-    keyboard = []
-
-    for anime in matches[:5]:
-
-        keyboard.append([
-            InlineKeyboardButton(
-                anime["name"],
-                callback_data=f"anime_{anime['name']}",
+            colored_button(
+                "🇬🇧 Watch English",
+                url=languages["english"],
                 style="primary"
             )
         ])
 
-    sent = await update.message.reply_text(
-        "🎌 sᴇʟᴇᴄᴛ ᴀɴɪᴍᴇ",
+    # LEGACY LINK SUPPORT
+    if not languages:
+        old_link = anime.get("link")
+
+        if old_link and str(old_link).strip() != "-":
+            keyboard.append([
+                colored_button(
+                    "🎬 Watch & Download",
+                    url=old_link,
+                    style="success"
+                )
+            ])
+
+    # MAIN CHANNEL - RED
+    channel_url = main_channel_url()
+
+    if channel_url:
+        keyboard.append([
+            colored_button(
+                "📢 Join Our Main Channel",
+                url=channel_url,
+                style="danger"
+            )
+        ])
+
+    return InlineKeyboardMarkup(keyboard)
+
+
+# ==========================================
+# SEND ANIME RESULT
+# ==========================================
+
+async def send_anime_result(message, anime):
+
+    name = str(anime.get("name") or "Unknown Anime")
+
+    sticker = anime.get("sticker")
+
+    languages = available_languages(anime)
+
+    # SEND STICKER FIRST
+    if sticker and str(sticker).strip() != "-":
+        try:
+            await message.reply_sticker(
+                sticker=sticker
+            )
+        except TelegramError:
+            logger.warning(
+                "Could not send search sticker for %s",
+                name,
+                exc_info=True
+            )
+
+    # AVAILABLE LANGUAGES
+    if "hindi" in languages and "english" in languages:
+        lang_text = "Hindi | English"
+
+    elif "hindi" in languages:
+        lang_text = "Hindi"
+
+    elif "english" in languages:
+        lang_text = "English"
+
+    elif anime.get("link"):
+        lang_text = "Available"
+
+    else:
+        lang_text = "Not specified"
+
+    text = (
+        "🎌 <b>MAHIRU ANIME PROVIDER</b>\n\n"
+        f"🎬 <b>{escape(name)}</b>\n\n"
+        f"🌐 <b>Languages:</b> {lang_text}\n\n"
+        "👇 Select your preferred language."
+    )
+
+    await message.reply_text(
+        text,
+        parse_mode="HTML",
+        reply_markup=build_buttons(anime),
+        disable_web_page_preview=True
+    )
+
+
+# ==========================================
+# MULTIPLE MATCH SELECTION
+# ==========================================
+
+async def show_matches(message, matches):
+
+    keyboard = []
+
+    for anime in matches:
+
+        anime_id = str(anime.get("_id", ""))
+
+        if not anime_id:
+            continue
+
+        keyboard.append([
+            colored_button(
+                f"🎬 {anime.get('name', 'Unknown Anime')}",
+                callback_data=f"directanime:{anime_id}",
+                style="primary"
+            )
+        ])
+
+    if not keyboard:
+        return
+
+    await message.reply_text(
+        "🎌 <b>Multiple anime found!</b>\n\n"
+        "Please select the anime you want:",
+        parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-    asyncio.create_task(auto_delete(sent, 120))
+
+# ==========================================
+# DIRECT SEARCH
+# ==========================================
+
+async def direct_search(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    message = update.effective_message
+
+    if not message or not message.text:
+        return
+
+    # Ignore commands
+    if message.text.startswith("/"):
+        return
+
+    # Ignore bot messages
+    if update.effective_user and update.effective_user.is_bot:
+        return
+
+    query = message.text.strip()
+
+    if not query:
+        return
+
+    # Load existing anime collection
+    animes = await get_all_anime()
+
+    # Use our new manual keyword engine
+    matches = search_anime(
+        query,
+        animes,
+        limit=10
+    )
+
+    # No matching keyword: remain silent
+    if not matches:
+        return
+
+    # Single result
+    if len(matches) == 1:
+        await send_anime_result(
+            message,
+            matches[0]
+        )
+        return
+
+    # Multiple results
+    await show_matches(message, matches)
+
+
+# ==========================================
+# ANIME SELECTION CALLBACK
+# ==========================================
+
+async def direct_anime_callback(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    query = update.callback_query
+
+    if not query:
+        return
+
+    await query.answer()
+
+    data = query.data or ""
+
+    if not data.startswith("directanime:"):
+        return
+
+    anime_id = data.split(":", 1)[1]
+
+    animes = await get_all_anime()
+
+    selected = next(
+        (
+            anime for anime in animes
+            if str(anime.get("_id")) == anime_id
+        ),
+        None
+    )
+
+    if not selected:
+        await query.message.reply_text(
+            "❌ Anime not found. Please search again."
+        )
+        return
+
+    await send_anime_result(
+        query.message,
+        selected
+    )
+
+
+# ==========================================
+# OPTIONAL /SEARCH COMMAND
+# ==========================================
+
+async def improved_anime(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    if not context.args:
+        await update.message.reply_text(
+            "🔎 Usage: /search Seven Knights"
+        )
+        return
+
+    query = " ".join(context.args)
+
+    animes = await get_all_anime()
+
+    matches = search_anime(query, animes, limit=10)
+
+    if not matches:
+        await update.message.reply_text(
+            "❌ No anime found."
+        )
+        return
+
+    if len(matches) == 1:
+        await send_anime_result(
+            update.message,
+            matches[0]
+        )
+    else:
+        await show_matches(
+            update.message,
+            matches
+        )
+
+
+# ==========================================
+# LEGACY /BTN COMPATIBILITY
+# ==========================================
+
+async def button_search(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+    await improved_anime(update, context)

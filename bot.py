@@ -26,7 +26,12 @@ from database.mongo import create_indexes, load_anime_cache
 # Handlers
 from handlers.start import start
 from handlers.anime import anime_search, add_anime, del_anime
-from handlers.search import improved_anime, button_search
+from handlers.search import (
+    improved_anime,
+    button_search,
+    direct_search,
+    direct_anime_callback,
+)
 from handlers.animelist import animelist
 from handlers.group import (
     chat_member_update,
@@ -194,7 +199,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_cmd))
-    app.add_handler(CommandHandler("anime", anime_search))
+    app.add_handler(CommandHandler("anime", improved_anime))
     app.add_handler(CommandHandler("search", improved_anime))
     app.add_handler(CommandHandler("btn", button_search))
     app.add_handler(CommandHandler("animelist", animelist))

@@ -57,6 +57,7 @@ from handlers.admin import (
     sudo_list,
 )
 from handlers.channel_logger import channel_member_update
+from handlers.bulk_anime import bulk_anime_handler
 from handlers.request import (
     request_start, anime_name, language_callback, dub_callback,
     season, extra, skip_season, skip_extra, cancel_request,
@@ -228,6 +229,7 @@ def main():
     app.add_handler(CommandHandler("broadcast", broadcast))
     app.add_handler(CommandHandler("bc", broadcast))
     app.add_handler(CommandHandler("bulkadd", bulk_add))
+    app.add_handler(bulk_anime_handler)
     app.add_handler(CommandHandler("fbc", forward_broadcast))
     app.add_handler(CommandHandler("uptime", uptime))
     app.add_handler(CommandHandler("groups", groups))

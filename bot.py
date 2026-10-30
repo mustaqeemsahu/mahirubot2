@@ -26,6 +26,7 @@ from database.mongo import create_indexes, load_anime_cache
 # Handlers
 from handlers.start import start
 from handlers.anime import anime_search, add_anime, del_anime
+from handlers.anime_add import anime_add_handler
 from handlers.search import (
     improved_anime,
     button_search,
@@ -221,7 +222,7 @@ def main():
     # ==========================
     # ADMIN COMMANDS (Owner + Sudo)
     # ==========================
-    app.add_handler(CommandHandler("add", add_anime))
+    app.add_handler(anime_add_handler)
     app.add_handler(CommandHandler("del", del_anime))
     app.add_handler(CommandHandler("stats", stats))
     app.add_handler(CommandHandler("broadcast", broadcast))

@@ -81,17 +81,17 @@ def search_anime(message, anime_list, limit=10):
 
 
 def available_languages(anime):
-    """Determine available languages from actual saved links."""
-
     languages = {}
 
-    hindi = anime.get("hindi_link")
-    english = anime.get("english_link")
+    for language in ("hindi", "english"):
+        value = anime.get(f"{language}_link")
 
-    if hindi and str(hindi).strip():
-        languages["hindi"] = str(hindi).strip()
+        if not isinstance(value, str):
+            continue
 
-    if english and str(english).strip():
-        languages["english"] = str(english).strip()
+        value = value.strip()
+
+        if value and value != "-":
+            languages[language] = value
 
     return languages

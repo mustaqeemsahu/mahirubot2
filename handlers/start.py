@@ -62,12 +62,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     first_name = escape(user.first_name or "there")
     caption = (
-        f'👋 <b>Hey, <a href="tg://user?id={user.id}">{first_name}</a>!</b>\n\n'
+        f'<blockquote>👋 <b>Hey, <a href="tg://user?id={user.id}">{first_name}</a>!</b></blockquote>\n\n'
         "🎌 <b>Welcome to Anime Search Bot!</b>\n\n"
         "Search for your favourite anime by simply sending its name.\n"
         "Can't find an anime? Request it using <code>/request Anime Name</code>.\n\n"
         "✨ Add me to your group and let everyone search for anime together!\n\n"
-        "<i>Choose an option below to get started.</i>"
+        "<blockquote><i>Main - @Anime_Stream_Zone</i></blockquote>"
     )
 
     try:

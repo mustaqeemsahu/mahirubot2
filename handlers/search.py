@@ -87,7 +87,7 @@ def build_buttons(anime):
     if "hindi" in languages:
         keyboard.append([
             colored_button(
-                "🇮🇳 Watch Hindi",
+                "﻿➲ ᴡᴀᴛᴄʜ ɪɴ ʜɪɴᴅɪ",
                 url=languages["hindi"],
                 style="success"
             )
@@ -97,7 +97,7 @@ def build_buttons(anime):
     if "english" in languages:
         keyboard.append([
             colored_button(
-                "🇬🇧 Watch English",
+                "﻿➲ ᴡᴀᴛᴄʜ ɪɴ ᴇɴɢʟɪꜱʜ",
                 url=languages["english"],
                 style="primary"
             )
@@ -110,7 +110,7 @@ def build_buttons(anime):
         if old_link and str(old_link).strip() != "-":
             keyboard.append([
                 colored_button(
-                    "🎬 Watch & Download",
+                    "✦ ᴍᴀɪɴ ᴄʜᴀɴɴᴇʟ ✦",
                     url=old_link,
                     style="success"
                 )
@@ -122,7 +122,7 @@ def build_buttons(anime):
     if channel_url:
         keyboard.append([
             colored_button(
-                "📢 Join Our Main Channel",
+                "✦ ᴍᴀɪɴ ᴄʜᴀɴɴᴇʟ ✦",
                 url=channel_url,
                 style="danger"
             )
@@ -154,7 +154,7 @@ async def send_anime_result(message, anime):
 
     # Fallback for old entries with invalid/missing stickers.
     await message.reply_text(
-        f"🎬 <b>{escape(name)}</b>\n👇 Select your language.",
+        f"🎬 <b>Name - {escape(name)}</b>\n👇 ꜱᴇʟᴇᴄᴛ ʏᴏᴜʀ ʟᴀɴɢᴜᴀɢᴇ ʙᴇʟᴏᴡ.",
         parse_mode="HTML", reply_markup=keyboard, disable_web_page_preview=True,
     )
 
@@ -186,8 +186,8 @@ async def show_matches(message, matches):
         return
 
     await message.reply_text(
-        "🎌 <b>Multiple anime found!</b>\n\n"
-        "Please select the anime you want:",
+        "🎌 <b>ᴍᴜʟᴛɪᴩʟᴇ ᴀɴɪᴍᴇꜱ ᴀʀᴇ ꜰᴏᴜɴᴅ!</b>\n\n"
+        "<b>ᴩʟᴇᴀꜱᴇ ꜱᴇʟᴇᴄᴛ ᴏɴᴇ ᴀɴɪᴍᴇ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴᴛ:</b>",
         parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
@@ -285,7 +285,7 @@ async def direct_anime_callback(
 
     if not selected:
         await query.message.reply_text(
-            "❌ Anime not found. Please search again."
+            "❌ <b>ᴀɴɪᴍᴇ ɴᴏᴛ ꜰᴏᴜɴᴅ ᴩʟᴇᴀꜱᴇ ᴛʀʏ ᴀɢᴀɪɴ ᴡɪᴛʜ ᴄᴏʀʀᴇᴄᴛ ɴᴀᴍᴇ</b>"
         )
         return
 

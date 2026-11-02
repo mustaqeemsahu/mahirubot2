@@ -64,9 +64,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     caption = (
         f'<blockquote>👋 <b>Hey, <a href="tg://user?id={user.id}">{first_name}</a>!</b></blockquote>\n\n'
         "🎌 <b>Welcome to Anime Search Bot!</b>\n\n"
-        "Search For Your Favourite Anime By Simply Sending Its Name.\n"
-        "Can't Find Anime? Request It Using <code>/request</code> or Check Anime List By <code>/animelist</code>\n\n"
-        "✨ Add Me To Your Group And Let Everyone Search For Anime Together!\n\n"
+        "﻿➲ Search For Your Favourite Anime By Simply Sending Its Name.\n"
+        "﻿➲ Can't Find Anime? Request It Using <code>/request</code> or Check Anime List By <code>/animelist</code> Commond\n\n"
+        "<b>✨ Add Me To Your Group And Let Everyone Search & Enjoy Anime Together!</b>\n\n"
         "<blockquote><b>➪ Join Main : @Anime_Stream_Zone</b></blockquote>"
     )
 

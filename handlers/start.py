@@ -67,7 +67,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Search For Your Favourite Anime By Simply Sending Its Name.\n"
         "Can't Find Anime? Request It Using <code>/request</code> or Check Anime List By <code>/animelist</code>\n\n"
         "✨ Add Me To Your Group And Let Everyone Search For Anime Together!\n\n"
-        "<blockquote><b>➪ Join Main : @Anime_Stream_Zone/b></blockquote>"
+        "<blockquote><b>➪ Join Main : @Anime_Stream_Zone</b></blockquote>"
     )
 
     try:

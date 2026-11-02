@@ -35,7 +35,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(
             chat_id=REPORT_GROUP_ID,
             text=(
-                "🚀 <b>BOT STARTED</b>\n\n"
+                "🚀 <b>ʙᴏᴛ ꜱᴛᴀʀᴛᴇᴅ</b>\n\n"
                 f"📍 Type: {chat_type}\n"
                 f"👤 User: {escape(user.full_name)}\n"
                 f"🆔 ID: <code>{user.id}</code>\n"
@@ -49,11 +49,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot_username = context.bot.username
     keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("📢 Main Channel", url=MAIN_CHANNEL_URL)],
-            [InlineKeyboardButton("💬 Support Group", url=SUPPORT_GROUP_URL)],
+            [InlineKeyboardButton("📢 ᴍᴀɪɴ ᴄʜᴀɴɴᴇʟ", url=MAIN_CHANNEL_URL)],
+            [InlineKeyboardButton("💬 ꜱᴜᴩᴩᴏʀᴛ ɢʀᴏᴜᴩ", url=SUPPORT_GROUP_URL)],
             [
                 InlineKeyboardButton(
-                    "➕ Add Me To Your Group",
+                    "➕ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴩ",
                     url=f"https://t.me/{bot_username}?startgroup=true",
                 )
             ],
@@ -64,10 +64,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     caption = (
         f'<blockquote>👋 <b>Hey, <a href="tg://user?id={user.id}">{first_name}</a>!</b></blockquote>\n\n'
         "🎌 <b>Welcome to Anime Search Bot!</b>\n\n"
-        "Search for your favourite anime by simply sending its name.\n"
-        "Can't find an anime? Request it using <code>/request Anime Name</code>.\n\n"
-        "✨ Add me to your group and let everyone search for anime together!\n\n"
-        "<blockquote><i>Main - @Anime_Stream_Zone</i></blockquote>"
+        "Search For Your Favourite Anime By Simply Sending Its Name.\n"
+        "Can't Find Anime? Request It Using <code>/request</code> or Check Anime List By <code>/animelist</code>\n\n"
+        "✨ Add Me To Your Group And Let Everyone Search For Anime Together!\n\n"
+        "<blockquote><b>➪ Join Main : @Anime_Stream_Zone/b></blockquote>"
     )
 
     try:

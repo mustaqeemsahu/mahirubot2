@@ -22,12 +22,7 @@ from telegram.ext import (
 from config import BOT_TOKEN
 
 # Database
-from database.mongo import (
-    add_anime_db,
-    delete_anime_db,
-    get_all_anime,
-    delete_all_anime_db,
-)
+from database.mongo import create_indexes, load_anime_cache
 
 # Handlers
 from handlers.start import start

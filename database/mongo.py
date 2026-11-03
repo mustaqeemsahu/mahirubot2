@@ -284,6 +284,15 @@ async def delete_anime_db(name):
 
     return result.deleted_count
 
+async def delete_all_anime_db():
+    """Delete all anime records from MongoDB."""
+    result = await anime_col.delete_many({})
+
+    # Refresh anime cache
+    await load_anime_cache()
+
+    return result.deleted_count
+
 # ==============================
 # FAST SEARCH (INDEX BASED)
 # ==============================

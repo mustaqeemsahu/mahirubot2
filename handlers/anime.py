@@ -17,7 +17,7 @@ from database.mongo import (
     get_all_anime,
 )
 from utils.filters import force_sub, check_bot_status
-from utils.sudo import require_sudo
+from utils.sudo import require_sudo, require_owner
 from utils.anime_search import find_anime_matches
 from utils.anilist import find_best_match as anilist_find_best_match
 
@@ -141,6 +141,45 @@ async def del_anime(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(
             "❌ ᴀɴɪᴍᴇ ɴᴏᴛ ғᴏᴜɴᴅ."
+        )
+
+
+# ==============================
+# DELETE ALL ANIME
+# OWNER ONLY
+# ==============================
+
+async def del_all_anime(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not await require_owner(update, context):
+        return
+
+    confirmation = context.args[0].lower() if context.args else ""
+
+    if confirmation != "confirm":
+        anime_list = await get_all_anime()
+
+        return await update.message.reply_text(
+            "⚠️ DELETE ALL ANIME FROM DATABASE?\n\n"
+            f"🎬 Total Anime: {len(anime_list)}\n\n"
+            "This action cannot be undone!\n\n"
+            "Confirm using:\n"
+            "/delall confirm"
+        )
+
+    try:
+        deleted = await delete_all_anime_db()
+
+        await update.message.reply_text(
+            "✅ ALL ANIME DELETED SUCCESSFULLY!\n\n"
+            f"🗑️ Total Deleted: {deleted}"
+        )
+
+    except Exception as e:
+        print(f"[DELALL ERROR] {e}")
+
+        await update.message.reply_text(
+            "❌ Database deletion failed!"
         )
 
 

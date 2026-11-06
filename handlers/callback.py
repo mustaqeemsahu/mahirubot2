@@ -462,7 +462,7 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             if hindi and hindi != "-":
                 links.append(
-                    f"<a href='{hindi}'>ʜɪɴᴅɪ</a>"
+                    f"<a href='{hindi}'>ʜɪɴᴅɪ ᴅᴜʙ</a>"
                 )
 
             if english and english != "-":

@@ -121,7 +121,7 @@ async def animelist(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
         if links:
-            text += " ➥ ".join(links)
+            text += "  ➥ ".join(links)
         else:
             text += "❌ ɴᴏ ʟɪɴᴋ ᴀᴠᴀɪʟᴀʙʟᴇ"
 

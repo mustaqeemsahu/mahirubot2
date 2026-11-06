@@ -32,7 +32,7 @@ TMDB_API_KEY = os.getenv("TMDB_API_KEY") or None
 FORCE_CHANNEL = "@Anime_Stream_Zone"  # Legacy compatibility
 OWNER_FORCE_CHANNEL_ID = -1003543490433
 OWNER_FORCE_CHANNEL_LINK = "https://t.me/+DVBuGuuBJUI5M2Rl"
-REPORT_GROUP_ID = -1003964165574, -1004365541207
+REPORT_GROUP_ID = [-1003964165574, -1004365541207]
 MAIN_CHANNEL_URL = "https://t.me/Anime_Stream_Zone"
 SUPPORT_GROUP_URL = "https://t.me/Anime_Search_Zone"
 
